@@ -1,13 +1,12 @@
-# Logger
+package logger
 
-```go
-go get github.com/nathangreene3/logger
-```
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
-## Example
-
-```go
-func main() {
+func TestJSON(t *testing.T) {
 	var lgr Logger
 
 	defer func() {
@@ -38,4 +37,3 @@ func main() {
 	lgr.Stack()
 	lgr.Panic("Stopping the World.")
 }
-```
