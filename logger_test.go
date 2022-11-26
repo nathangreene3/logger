@@ -28,7 +28,7 @@ func TestJSON(t *testing.T) {
 
 	lgr.Init(
 		SetFormat(JSON),
-		SetWriter(f),
+		SetOutput(f),
 	)
 
 	lgr.Info("Hello, World!")
