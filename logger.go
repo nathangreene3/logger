@@ -91,7 +91,7 @@ func (lgr *Logger) Warn(message string) {
 }
 
 // write writes a leveled message to the underlying writer.
-func (lgr *Logger) write(level, message string) {
+func (lgr *Logger) write(level Level, message string) {
 	lgr.Lock()
 	lgr.Write([]byte(fmt.Sprintf(formats[lgr.format], time.Now().Format(formatTime), level, message)))
 	lgr.Unlock()
