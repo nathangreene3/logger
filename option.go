@@ -15,6 +15,6 @@ func SetFormat(n Format) Option {
 // SetWriter returns an option that can set the writer for a logger.
 func SetWriter(w io.Writer) Option {
 	return func(lgr *Logger) {
-		lgr.SetWriter(w)
+		lgr.SetOutput(w)
 	}
 }

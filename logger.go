@@ -36,7 +36,7 @@ func (lgr *Logger) Init(opts ...Option) {
 	}
 
 	if lgr.output == nil {
-		lgr.SetWriter(os.Stderr)
+		lgr.SetOutput(os.Stderr)
 	}
 }
 
@@ -47,8 +47,8 @@ func (lgr *Logger) SetFormat(n Format) {
 	lgr.Unlock()
 }
 
-// SetWriter sets the underlying writer.
-func (lgr *Logger) SetWriter(w io.Writer) {
+// SetOutput sets the underlying writer.
+func (lgr *Logger) SetOutput(w io.Writer) {
 	lgr.Lock()
 	lgr.output = w
 	lgr.Unlock()
