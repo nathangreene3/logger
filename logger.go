@@ -35,7 +35,7 @@ func (lgr *Logger) Init(opts ...Option) {
 		opt(lgr)
 	}
 
-	if lgr.output == nil {
+	if lgr.outputIs(nil) {
 		lgr.SetOutput(os.Stderr)
 	}
 }
@@ -79,6 +79,14 @@ func (lgr *Logger) Output() io.Writer {
 	lgr.Lock()
 	defer lgr.Unlock()
 	return lgr.output
+}
+
+// outputIs determines if the underlying writer is equal to the given
+// writer.
+func (lgr *Logger) outputIs(w io.Writer) bool {
+	lgr.Lock()
+	defer lgr.Unlock()
+	return lgr.output == w
 }
 
 // Panic writes an error, then calls panic.
