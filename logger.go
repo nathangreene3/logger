@@ -100,6 +100,7 @@ func (lgr *Logger) Warn(message string) {
 // write writes a leveled message to the underlying writer.
 func (lgr *Logger) write(level Level, message string) {
 	lgr.Lock()
-	lgr.output.Write([]byte(fmt.Sprintf(formats[lgr.format], time.Now().Format(formatTime), level, message)))
+	// Intentionally ignore any error.
+	fmt.Fprintf(lgr.output, formats[lgr.format], time.Now().Format(formatTime), level, message)
 	lgr.Unlock()
 }
