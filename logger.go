@@ -11,7 +11,7 @@ import (
 
 // A Logger writes formatted messages to a writer.
 type Logger struct {
-	sync.Mutex
+	sync.RWMutex
 	output io.Writer
 	format Format
 }
@@ -76,16 +76,16 @@ func (lgr *Logger) Info(message string) {
 
 // Output returns the underlying writer.
 func (lgr *Logger) Output() io.Writer {
-	lgr.Lock()
-	defer lgr.Unlock()
+	lgr.RLock()
+	defer lgr.RUnlock()
 	return lgr.output
 }
 
 // outputIs determines if the underlying writer is equal to the given
 // writer.
 func (lgr *Logger) outputIs(w io.Writer) bool {
-	lgr.Lock()
-	defer lgr.Unlock()
+	lgr.RLock()
+	defer lgr.RUnlock()
 	return lgr.output == w
 }
 
