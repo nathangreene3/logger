@@ -12,7 +12,7 @@ import (
 // A Logger writes formatted messages to a writer.
 type Logger struct {
 	sync.Mutex
-	io.Writer
+	output io.Writer
 	format Format
 }
 
@@ -35,7 +35,7 @@ func (lgr *Logger) Init(opts ...Option) {
 		opt(lgr)
 	}
 
-	if lgr.Writer == nil {
+	if lgr.output == nil {
 		lgr.SetWriter(os.Stderr)
 	}
 }
@@ -50,7 +50,7 @@ func (lgr *Logger) SetFormat(n Format) {
 // SetWriter sets the underlying writer.
 func (lgr *Logger) SetWriter(w io.Writer) {
 	lgr.Lock()
-	lgr.Writer = w
+	lgr.output = w
 	lgr.Unlock()
 }
 
@@ -74,6 +74,13 @@ func (lgr *Logger) Info(message string) {
 	lgr.write(infoLevel, message)
 }
 
+// Output returns the underlying writer.
+func (lgr *Logger) Output() io.Writer {
+	lgr.Lock()
+	defer lgr.Unlock()
+	return lgr.output
+}
+
 // Panic writes an error, then calls panic.
 func (lgr *Logger) Panic(message string) {
 	lgr.Error(message)
@@ -93,6 +100,6 @@ func (lgr *Logger) Warn(message string) {
 // write writes a leveled message to the underlying writer.
 func (lgr *Logger) write(level Level, message string) {
 	lgr.Lock()
-	lgr.Write([]byte(fmt.Sprintf(formats[lgr.format], time.Now().Format(formatTime), level, message)))
+	lgr.output.Write([]byte(fmt.Sprintf(formats[lgr.format], time.Now().Format(formatTime), level, message)))
 	lgr.Unlock()
 }
