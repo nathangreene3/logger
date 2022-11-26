@@ -60,18 +60,18 @@ func (lgr *Logger) SetOutput(w io.Writer) {
 
 // Error writes an error message.
 func (lgr *Logger) Error(message string) {
-	lgr.write(errLevel, message)
+	lgr.WriteLogEntry(errLevel, message)
 }
 
 // Fatal writes a fatal message, then exits with code 1.
 func (lgr *Logger) Fatal(message string) {
-	lgr.write(fatalLevel, message)
+	lgr.WriteLogEntry(fatalLevel, message)
 	os.Exit(1)
 }
 
 // Info writes an info-level message.
 func (lgr *Logger) Info(message string) {
-	lgr.write(infoLevel, message)
+	lgr.WriteLogEntry(infoLevel, message)
 }
 
 // Output returns the underlying writer.
@@ -89,16 +89,16 @@ func (lgr *Logger) Panic(message string) {
 
 // Stack writes the current stack as a debug-level message.
 func (lgr *Logger) Stack() {
-	lgr.write(debugLevel, string(debug.Stack()))
+	lgr.WriteLogEntry(debugLevel, string(debug.Stack()))
 }
 
 // Warn writes a warning message.
 func (lgr *Logger) Warn(message string) {
-	lgr.write(warnLevel, message)
+	lgr.WriteLogEntry(warnLevel, message)
 }
 
-// write writes a leveled message to the underlying writer.
-func (lgr *Logger) write(level Level, message string) {
+// WriteLogEntry writes a log entry to the underlying writer.
+func (lgr *Logger) WriteLogEntry(level Level, message string) {
 	lgr.Lock()
 	lgr.output.Write([]byte(fmt.Sprintf(formats[lgr.format], time.Now().Format(formatTime), level, message)))
 	lgr.Unlock()
