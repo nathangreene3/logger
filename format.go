@@ -13,15 +13,6 @@ const (
 	JSON
 )
 
-// Levels
-const (
-	debugLevel = "DEBUG"
-	errLevel   = "ERROR"
-	fatalLevel = "FATAL"
-	infoLevel  = "INFO"
-	warnLevel  = "WARN"
-)
-
 // formatTime defines how log entry time stamps are formatted.
 const formatTime = "2006/01/02 15:04:05"
 
