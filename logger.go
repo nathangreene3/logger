@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -109,8 +110,31 @@ func (lgr *Logger) Warn(message string) {
 
 // WriteLogEntry writes a log entry to the underlying writer.
 func (lgr *Logger) WriteLogEntry(level Level, message string) {
+	// defaultFmt corresponds to the default format.
+	const defaultFmt = "%s %s: %s\n"
+
+	// logEntry corresponds to the JSON format.
+	type logEntry struct {
+		Time    time.Time `json:"time"`
+		Level   Level     `json:"level"`
+		Message string    `json:"message"`
+	}
+
 	lgr.Lock()
-	// Intentionally ignore any error.
-	fmt.Fprintf(lgr.output, formats[lgr.format], time.Now().Format(formatTime), level, message)
-	lgr.Unlock()
+	defer lgr.Unlock()
+
+	switch lgr.format {
+	case Default:
+		// Intentionally ignore any error.
+		fmt.Fprintf(lgr.output, defaultFmt, time.Now().Format(time.RFC3339Nano), level, message)
+	case JSON:
+		// Intentionally ignore any error.
+		json.NewEncoder(lgr.output).Encode(logEntry{
+			Time:    time.Now(),
+			Level:   level,
+			Message: message,
+		})
+	default:
+		panic("invalid level")
+	}
 }
