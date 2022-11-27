@@ -35,9 +35,12 @@ func (lgr *Logger) Init(opts ...Option) {
 		opt(lgr)
 	}
 
-	if lgr.outputIs(nil) {
-		lgr.SetOutput(os.Stderr)
+	lgr.Lock()
+	if lgr.output == nil {
+		lgr.output = os.Stderr
 	}
+
+	lgr.Unlock()
 }
 
 // SetFormat sets the format of log entries.
@@ -86,14 +89,6 @@ func (lgr *Logger) Output() io.Writer {
 	lgr.RLock()
 	defer lgr.RUnlock()
 	return lgr.output
-}
-
-// outputIs determines if the underlying writer is equal to the given
-// writer.
-func (lgr *Logger) outputIs(w io.Writer) bool {
-	lgr.RLock()
-	defer lgr.RUnlock()
-	return lgr.output == w
 }
 
 // Panic writes an error, then calls panic.
