@@ -69,6 +69,13 @@ func (lgr *Logger) Fatal(message string) {
 	os.Exit(1)
 }
 
+// Format returns the logger's format.
+func (lgr *Logger) Format() Format {
+	lgr.RLock()
+	defer lgr.RUnlock()
+	return lgr.format
+}
+
 // Info writes an info-level message.
 func (lgr *Logger) Info(message string) {
 	lgr.WriteLogEntry(infoLevel, message)
