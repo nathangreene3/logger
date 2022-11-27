@@ -1,27 +1,20 @@
 package logger
 
-// A Format defines how log entries are formed.
+// A Format defines how log entries are structured.
 type Format int
 
 const (
-	// LevelMessage formats log entries as
-	// 	01/02/2006 15:04:05 INFO: Hello, World!
-	LevelMessage Format = iota
+	// Default formats log entries as
+	//
+	// 	2006-01-02T15:04:05.999999999Z07:00 INFO: Hello, World!
+	Default Format = iota
 
 	// JSON formats log entries as
-	// 	{"time":"01/02/2006 15:04:05","level":"INFO","message":"Hello, World!"}.
+	//
+	// 	{
+	// 	  "time": "2006-01-02T15:04:05.999999999Z07:00",
+	// 	  "level": "INFO",
+	// 	  "message": "Hello, World!"
+	// 	}
 	JSON
 )
-
-// formatTime defines how log entry time stamps are formatted.
-const formatTime = "2006/01/02 15:04:05"
-
-// formats is a list of formats corresponding to the integer format
-// constants.
-//
-//	0 (level-message): 2006/01/02 15:04:05 INFO: Hello, World!
-//	1 (json):          {"time":"2006/01/02 15:04:05","level":"INFO","message":"Hello, World!"}
-var formats = [...]string{
-	"%s %s: %s\n",
-	`{"time":%q,"level":%q,"message":%q}` + "\n",
-}
