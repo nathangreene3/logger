@@ -76,7 +76,7 @@ func (lgr *Logger) Output() io.Writer {
 	return lgr.output
 }
 
-// Panic writes an error, then calls panic.
+// Panic writes an error-level message, then calls panic.
 func (lgr *Logger) Panic(message string) {
 	lgr.Error(message)
 	panic(message)
@@ -111,21 +111,17 @@ func (lgr *Logger) WriteLogEntry(level Level, message string) {
 	lgr.Lock()
 	defer lgr.Unlock()
 
+	e := LogEntry{
+		Time:    time.Now(),
+		Level:   level,
+		Message: message,
+	}
+
 	switch lgr.format {
 	case Default:
-		// Intentionally ignore any error.
-		fmt.Fprintln(lgr.output, LogEntry{
-			Time:    time.Now(),
-			Level:   level,
-			Message: message,
-		})
+		_, _ = fmt.Fprintln(lgr.output, e)
 	case JSON:
-		// Intentionally ignore any error.
-		json.NewEncoder(lgr.output).Encode(LogEntry{
-			Time:    time.Now(),
-			Level:   level,
-			Message: message,
-		})
+		_ = json.NewEncoder(lgr.output).Encode(e)
 	default:
 		panic(ErrInvalidLevel)
 	}

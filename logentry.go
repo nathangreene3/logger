@@ -18,26 +18,30 @@ type LogEntry struct {
 func Parse(format Format, logEntry string) (LogEntry, error) {
 	switch format {
 	case Default:
-		var fields = strings.SplitN(logEntry, " ", 3)
+		fields := strings.SplitN(logEntry, " ", 3)
 		if len(fields) != 3 {
 			return LogEntry{}, ErrMalformedLogEntry
 		}
 
 		t, err := time.Parse(time.RFC3339Nano, fields[0])
 		if err != nil {
-			return LogEntry{}, err
+			return LogEntry{}, fmt.Errorf("time.Parse: %w", err)
 		}
 
-		var entry = LogEntry{
+		e := LogEntry{
 			Time:    t,
 			Level:   Level(strings.TrimSuffix(fields[1], ":")),
 			Message: fields[2],
 		}
 
-		return entry, nil
+		return e, nil
 	case JSON:
-		var entry LogEntry
-		return entry, json.Unmarshal([]byte(logEntry), &entry)
+		var e LogEntry
+		if err := json.Unmarshal([]byte(logEntry), &e); err != nil {
+			return LogEntry{}, fmt.Errorf("json.Unmarshal: %w", err)
+		}
+
+		return e, nil
 	default:
 		return LogEntry{}, ErrInvalidFormat
 	}
