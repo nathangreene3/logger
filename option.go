@@ -1,14 +1,16 @@
 package logger
 
-import "io"
+import (
+	"io"
+)
 
 // An Option modifies a logger.
 type Option func(*Logger)
 
 // SetFormat returns an option that can set the format for a logger.
-func SetFormat(n Format) Option {
+func SetFormat(f Format) Option {
 	return func(lgr *Logger) {
-		lgr.SetFormat(n)
+		lgr.SetFormat(f)
 	}
 }
 
