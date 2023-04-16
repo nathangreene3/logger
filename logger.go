@@ -13,13 +13,15 @@ import (
 // A Logger writes formatted messages to a writer.
 type Logger struct {
 	sync.RWMutex
+
+	// output is where log entries will be written to. If left empty, log
+	// entries will be written to stderr.
 	output io.Writer
+
+	// format specifies how log entries will be formatted. If left empty,
+	// log entries will be formatted with the default format.
 	format Format
 }
-
-// ---------------------------------------------------------------------
-// 	Logging constructors and modifiers
-// ---------------------------------------------------------------------
 
 // New returns a logger. If no options are passed, the logger will write
 // to stderr with the default format.
@@ -44,32 +46,14 @@ func (lgr *Logger) Init(opts ...Option) {
 	lgr.Unlock()
 }
 
-// SetFormat sets the format of log entries.
-func (lgr *Logger) SetFormat(n Format) {
-	lgr.Lock()
-	lgr.format = n
-	lgr.Unlock()
-}
-
-// SetOutput sets the underlying writer.
-func (lgr *Logger) SetOutput(w io.Writer) {
-	lgr.Lock()
-	lgr.output = w
-	lgr.Unlock()
-}
-
-// ---------------------------------------------------------------------
-// 	Logging methods
-// ---------------------------------------------------------------------
-
 // Error writes an error message.
 func (lgr *Logger) Error(message string) {
-	lgr.WriteLogEntry(errLevel, message)
+	lgr.WriteLogEntry(Error, message)
 }
 
-// Fatal writes a fatal message, then exits with code 1.
+// Fatal writes a fatal-level message, then exits with code 1.
 func (lgr *Logger) Fatal(message string) {
-	lgr.WriteLogEntry(fatalLevel, message)
+	lgr.WriteLogEntry(Fatal, message)
 	os.Exit(1)
 }
 
@@ -82,7 +66,7 @@ func (lgr *Logger) Format() Format {
 
 // Info writes an info-level message.
 func (lgr *Logger) Info(message string) {
-	lgr.WriteLogEntry(infoLevel, message)
+	lgr.WriteLogEntry(Info, message)
 }
 
 // Output returns the underlying writer.
@@ -92,49 +76,53 @@ func (lgr *Logger) Output() io.Writer {
 	return lgr.output
 }
 
-// Panic writes an error, then calls panic.
+// Panic writes an error-level message, then calls panic.
 func (lgr *Logger) Panic(message string) {
 	lgr.Error(message)
 	panic(message)
 }
 
+// SetFormat sets the format of log entries.
+func (lgr *Logger) SetFormat(f Format) {
+	lgr.Lock()
+	lgr.format = f
+	lgr.Unlock()
+}
+
+// SetOutput sets the underlying writer.
+func (lgr *Logger) SetOutput(w io.Writer) {
+	lgr.Lock()
+	lgr.output = w
+	lgr.Unlock()
+}
+
 // Stack writes the current stack as a debug-level message.
 func (lgr *Logger) Stack() {
-	lgr.WriteLogEntry(debugLevel, string(debug.Stack()))
+	lgr.WriteLogEntry(Debug, string(debug.Stack()))
 }
 
 // Warn writes a warning message.
 func (lgr *Logger) Warn(message string) {
-	lgr.WriteLogEntry(warnLevel, message)
+	lgr.WriteLogEntry(Warn, message)
 }
 
 // WriteLogEntry writes a log entry to the underlying writer.
 func (lgr *Logger) WriteLogEntry(level Level, message string) {
-	// defaultFmt corresponds to the default format.
-	const defaultFmt = "%s %s: %s\n"
-
-	// logEntry corresponds to the JSON format.
-	type logEntry struct {
-		Time    time.Time `json:"time"`
-		Level   Level     `json:"level"`
-		Message string    `json:"message"`
-	}
-
 	lgr.Lock()
 	defer lgr.Unlock()
 
+	e := LogEntry{
+		Time:    time.Now(),
+		Level:   level,
+		Message: message,
+	}
+
 	switch lgr.format {
 	case Default:
-		// Intentionally ignore any error.
-		fmt.Fprintf(lgr.output, defaultFmt, time.Now().Format(time.RFC3339Nano), level, message)
+		_, _ = fmt.Fprintln(lgr.output, e)
 	case JSON:
-		// Intentionally ignore any error.
-		json.NewEncoder(lgr.output).Encode(logEntry{
-			Time:    time.Now(),
-			Level:   level,
-			Message: message,
-		})
+		_ = json.NewEncoder(lgr.output).Encode(e)
 	default:
-		panic("invalid level")
+		panic(ErrInvalidLevel)
 	}
 }
