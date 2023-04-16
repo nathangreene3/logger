@@ -2,6 +2,7 @@ package logger
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -40,4 +41,10 @@ func Parse(format Format, logEntry string) (LogEntry, error) {
 	default:
 		return LogEntry{}, ErrInvalidFormat
 	}
+}
+
+// String returns a representation of a log entry.
+func (e LogEntry) String() string {
+	const logEntryFmt = "%s %s: %s"
+	return fmt.Sprintf(logEntryFmt, e.Time.Format(time.RFC3339Nano), e.Level, e.Message)
 }

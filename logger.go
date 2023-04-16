@@ -114,7 +114,11 @@ func (lgr *Logger) WriteLogEntry(level Level, message string) {
 	switch lgr.format {
 	case Default:
 		// Intentionally ignore any error.
-		fmt.Fprintf(lgr.output, "%s %s: %s\n", time.Now().Format(time.RFC3339Nano), level, message)
+		fmt.Fprintln(lgr.output, LogEntry{
+			Time:    time.Now(),
+			Level:   level,
+			Message: message,
+		})
 	case JSON:
 		// Intentionally ignore any error.
 		json.NewEncoder(lgr.output).Encode(LogEntry{
