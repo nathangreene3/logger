@@ -18,8 +18,8 @@ const (
 type Level int
 
 // String returns a representation of a level.
-func (v Level) String() string {
-	switch v {
+func (lvl Level) String() string {
+	switch lvl {
 	case Info:
 		return "INFO"
 	case Warn:
@@ -36,8 +36,8 @@ func (v Level) String() string {
 }
 
 // ParseLevel parses a representation of a level.
-func ParseLevel(s string) (Level, error) {
-	switch s {
+func ParseLevel(level string) (Level, error) {
+	switch level {
 	case Info.String():
 		return Info, nil
 	case Warn.String():
@@ -54,26 +54,26 @@ func ParseLevel(s string) (Level, error) {
 }
 
 // UnmarshalJSON parses JSON-encoded data into a level.
-func (v *Level) UnmarshalJSON(b []byte) error {
-	if v == nil {
+func (lvl *Level) UnmarshalJSON(b []byte) error {
+	if lvl == nil {
 		return ErrNilPointer
 	}
 
 	b = bytes.Trim(b, `"`)
 
-	lvl, err := ParseLevel(string(b))
+	parsed, err := ParseLevel(string(b))
 	if err != nil {
 		return fmt.Errorf("ParseLevel: %w", err)
 	}
 
-	*v = lvl
+	*lvl = parsed
 
 	return nil
 }
 
 // MarshalJSON returns a JSON-encoded representation of a level.
-func (v Level) MarshalJSON() ([]byte, error) {
-	s := v.String()
+func (lvl Level) MarshalJSON() ([]byte, error) {
+	s := lvl.String()
 	if s == "" {
 		return nil, ErrInvalidLevel
 	}
