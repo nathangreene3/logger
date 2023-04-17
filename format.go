@@ -4,10 +4,10 @@ package logger
 type Format int
 
 const (
-	// Default formats log entries as
+	// Line formats log entries as
 	//
 	// 	2006-01-02T15:04:05.999999999Z07:00 INFO: Hello, World!
-	Default Format = iota
+	Line Format = iota
 
 	// JSON formats log entries as
 	//

@@ -118,11 +118,15 @@ func (lgr *Logger) WriteLogEntry(level Level, message string) {
 	}
 
 	switch lgr.format {
-	case Default:
-		_, _ = fmt.Fprintln(lgr.output, e)
+	case Line:
+		if _, err := fmt.Fprintln(lgr.output, e); err != nil {
+			panic(fmt.Errorf("fmt.Fprintln: %w", err))
+		}
 	case JSON:
-		_ = json.NewEncoder(lgr.output).Encode(e)
+		if err := json.NewEncoder(lgr.output).Encode(e); err != nil {
+			panic(fmt.Errorf("json.Encoder.Encode: %w", err))
+		}
 	default:
-		panic(ErrInvalidLevel)
+		panic(ErrInvalidFormat)
 	}
 }
