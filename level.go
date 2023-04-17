@@ -7,7 +7,7 @@ import (
 
 // Levels
 const (
-	Info Level = iota
+	Info Level = 1 + iota
 	Warn
 	Error
 	Fatal
