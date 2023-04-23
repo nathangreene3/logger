@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+var (
+	// defaultOutput is where log entries will be written to when a
+	// logger's output is not set.
+	defaultOutput io.Writer = os.Stderr
+)
+
 // A Logger writes formatted messages to a writer.
 type Logger struct {
 	sync.RWMutex
@@ -37,13 +43,6 @@ func (lgr *Logger) Init(opts ...Option) {
 	for _, opt := range opts {
 		opt(lgr)
 	}
-
-	lgr.Lock()
-	if lgr.output == nil {
-		lgr.output = os.Stderr
-	}
-
-	lgr.Unlock()
 }
 
 // Error writes an error message.
@@ -69,11 +68,17 @@ func (lgr *Logger) Info(message string) {
 	lgr.WriteLogEntry(Info, message)
 }
 
-// Output returns the underlying writer.
+// Output returns the underlying writer. If the output is empty, this
+// returns stderr.
 func (lgr *Logger) Output() io.Writer {
 	lgr.RLock()
 	defer lgr.RUnlock()
-	return lgr.output
+
+	if lgr.output != nil {
+		return lgr.output
+	}
+
+	return defaultOutput
 }
 
 // Panic writes an error-level message, then calls panic.
@@ -106,10 +111,17 @@ func (lgr *Logger) Warn(message string) {
 	lgr.WriteLogEntry(Warn, message)
 }
 
-// WriteLogEntry writes a log entry to the underlying writer.
+// WriteLogEntry writes a log entry to the underlying writer. If the
+// output is not set, the log entry will be written to stderr.
 func (lgr *Logger) WriteLogEntry(level Level, message string) {
 	lgr.Lock()
 	defer lgr.Unlock()
+
+	w := lgr.output
+
+	if w == nil {
+		w = defaultOutput
+	}
 
 	e := LogEntry{
 		Time:    time.Now(),
@@ -119,11 +131,11 @@ func (lgr *Logger) WriteLogEntry(level Level, message string) {
 
 	switch lgr.format {
 	case Line:
-		if _, err := fmt.Fprintln(lgr.output, e); err != nil {
+		if _, err := fmt.Fprintln(w, e); err != nil {
 			panic(fmt.Errorf("fmt.Fprintln: %w", err))
 		}
 	case JSON:
-		if err := json.NewEncoder(lgr.output).Encode(e); err != nil {
+		if err := json.NewEncoder(w).Encode(e); err != nil {
 			panic(fmt.Errorf("json.Encoder.Encode: %w", err))
 		}
 	default:

@@ -8,6 +8,7 @@ import (
 
 func TestJSON(t *testing.T) {
 	var lgr Logger
+
 	f, err := os.OpenFile("test.log", os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		lgr.Fatal(err.Error())
