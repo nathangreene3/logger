@@ -10,6 +10,7 @@ const (
 	Info Level = 1 + iota
 	Warn
 	Error
+	Panic
 	Fatal
 	Debug
 )
@@ -26,6 +27,8 @@ func (lvl Level) String() string {
 		return "WARN"
 	case Error:
 		return "ERROR"
+	case Panic:
+		return "PANIC"
 	case Fatal:
 		return "FATAL"
 	case Debug:
@@ -44,6 +47,8 @@ func ParseLevel(level string) (Level, error) {
 		return Warn, nil
 	case Error.String():
 		return Error, nil
+	case Panic.String():
+		return Panic, nil
 	case Fatal.String():
 		return Fatal, nil
 	case Debug.String():

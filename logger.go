@@ -81,9 +81,9 @@ func (lgr *Logger) Output() io.Writer {
 	return defaultOutput
 }
 
-// Panic writes an error-level message, then calls panic.
+// Panic writes a panic-level message, then calls panic.
 func (lgr *Logger) Panic(message string) {
-	lgr.Error(message)
+	lgr.WriteLogEntry(Panic, message)
 	panic(message)
 }
 
