@@ -18,7 +18,7 @@ var (
 
 // A Logger writes formatted messages to a writer.
 type Logger struct {
-	sync.RWMutex
+	mutex sync.RWMutex
 
 	// output is where log entries will be written to. If left empty, log
 	// entries will be written to stderr.
@@ -58,8 +58,8 @@ func (lgr *Logger) Fatal(message string) {
 
 // Format returns the logger's format.
 func (lgr *Logger) Format() Format {
-	lgr.RLock()
-	defer lgr.RUnlock()
+	lgr.mutex.RLock()
+	defer lgr.mutex.RUnlock()
 	return lgr.format
 }
 
@@ -71,8 +71,8 @@ func (lgr *Logger) Info(message string) {
 // Output returns the underlying writer. If the output is empty, this
 // returns stderr.
 func (lgr *Logger) Output() io.Writer {
-	lgr.RLock()
-	defer lgr.RUnlock()
+	lgr.mutex.RLock()
+	defer lgr.mutex.RUnlock()
 
 	if lgr.output != nil {
 		return lgr.output
@@ -89,16 +89,16 @@ func (lgr *Logger) Panic(message string) {
 
 // SetFormat sets the format of log entries.
 func (lgr *Logger) SetFormat(f Format) {
-	lgr.Lock()
+	lgr.mutex.Lock()
 	lgr.format = f
-	lgr.Unlock()
+	lgr.mutex.Unlock()
 }
 
 // SetOutput sets the underlying writer.
 func (lgr *Logger) SetOutput(w io.Writer) {
-	lgr.Lock()
+	lgr.mutex.Lock()
 	lgr.output = w
-	lgr.Unlock()
+	lgr.mutex.Unlock()
 }
 
 // Stack writes the current stack as a debug-level message.
@@ -114,8 +114,8 @@ func (lgr *Logger) Warn(message string) {
 // WriteLogEntry writes a log entry to the underlying writer. If the
 // output is not set, the log entry will be written to stderr.
 func (lgr *Logger) WriteLogEntry(level Level, message string) {
-	lgr.Lock()
-	defer lgr.Unlock()
+	lgr.mutex.Lock()
+	defer lgr.mutex.Unlock()
 
 	w := lgr.output
 
