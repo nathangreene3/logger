@@ -14,10 +14,10 @@ type LogEntry struct {
 	Message string    `json:"message"`
 }
 
-// Parse returns a log entry.
-func Parse(format Format, logEntry string) (LogEntry, error) {
+// ParseLogEntry returns a log entry.
+func ParseLogEntry(format Format, logEntry string) (LogEntry, error) {
 	switch format {
-	case Default:
+	case Line:
 		fields := strings.SplitN(logEntry, " ", 3)
 		if len(fields) != 3 {
 			return LogEntry{}, ErrMalformedLogEntry
@@ -25,12 +25,17 @@ func Parse(format Format, logEntry string) (LogEntry, error) {
 
 		t, err := time.Parse(time.RFC3339Nano, fields[0])
 		if err != nil {
-			return LogEntry{}, fmt.Errorf("time.Parse: %w", err)
+			return LogEntry{}, fmt.Errorf("time.ParseLogEntry: %w", err)
+		}
+
+		v, err := ParseLevel(strings.TrimSuffix(fields[1], ":"))
+		if err != nil {
+			return LogEntry{}, fmt.Errorf("ParseLevel: %w", err)
 		}
 
 		e := LogEntry{
 			Time:    t,
-			Level:   Level(strings.TrimSuffix(fields[1], ":")),
+			Level:   v,
 			Message: fields[2],
 		}
 
