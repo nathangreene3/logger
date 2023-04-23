@@ -35,7 +35,7 @@ func TestJSON(t *testing.T) {
 	lgr.Info("This is an informational message.")
 	lgr.Warn("This is a warning message.")
 	lgr.Error("This is an error message.")
-	lgr.Panic("This is a panic message (an error with panic).")
+	lgr.Panic("This is a panic message.")
 
 	// Note: Can't call Logger.Fatal. It causes tests to fail and can't be
 	// recovered.
